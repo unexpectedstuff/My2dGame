@@ -19,6 +19,9 @@ public class GamePanel extends JPanel implements Runnable{
 	final int screenWidth = tileSize * maxScreenCol; // 768 pixels
 	final int screenHeight = tileSize * maxScreenRow; // 576 pixels
 	
+	//FPS
+	int FPS = 60;
+	
 	KeyHandler keyH = new KeyHandler ();
 	
 	Thread gameThread;
@@ -46,19 +49,56 @@ public class GamePanel extends JPanel implements Runnable{
 	
 	@Override
 	public void run() {
+		
+		double drawInterval = 1000000000/FPS; // 0.01666 seconds. This is a sleep method of restricting gameloop time
+		double nextDrawTime = System.nanoTime() + drawInterval; // sleep method
+		
 		//gameLoop
 		while (gameThread != null) {
 //			System.out.println("The game loop is running");
+			
+//			long currentTime = System.nanoTime(); 
+//			System.out.println("current Time: "+currentTime); how time works
 			
 			// 1.  UPDATE: update information such as character positions
 			update();
 			// 2. DRAW: draw the screen with updated information
 			repaint(); // that's how paintComponent called.
+			
+			//sleep method
+			try {
+				double remainingTime = nextDrawTime - System.nanoTime(); 
+				remainingTime = remainingTime/1000000; //convert from nanoseconds to milliseconds 
+				
+				if(remainingTime < 0) {
+					remainingTime = 0;
+				}
+				
+				Thread.sleep((long) remainingTime);
+				
+				nextDrawTime += drawInterval;
+				
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			//end of sleep method
 		}
 	}
 		
 	public void update() {
-		
+		 if(keyH.upPressed == true) {
+			 playerY -= playerSpeed; //playerY = playerY - playerSpeed;	 
+		 }
+		 else if(keyH.downPressed == true) {
+			 playerY += playerSpeed;  
+		 }
+		 else if(keyH.leftPressed == true) {
+			 playerX -= playerSpeed;  
+		 }
+		 else if(keyH.rightPressed == true) {
+			 playerX += playerSpeed;  
+		 }
 	}
 	public void paintComponent(Graphics g) { 
 		
